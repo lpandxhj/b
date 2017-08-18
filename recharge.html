@@ -1,0 +1,85 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="x-ua-compatible" content="ie=edge" />
+    <meta name="viewport" content="width=device-width,initial-scale=1, maximum-scale=1, minimum-scale=1" />
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="format-detection" content="telephone=no">
+    <meta http-equiv="pragma" content="no-cache">
+    <meta http-equiv="cache-control" content="no-cache, must-revalidate">
+    <meta http-equiv="expires" content="0">
+    <link rel="stylesheet" href="css/font.css" />
+    <link rel="stylesheet" href="css/style.css" />
+    <title>生活缴费-立即充值</title>
+</head>
+
+<body id="app" class="greybg">
+    <div class="container clrfix">
+        <ul class="box">
+            <li><em :class="accountinfo.type"></em><span class="acc-name">{{accountinfo.name}}</span></li>
+            <li class="bindinfo">
+                <p><label>缴费单位</label><span>{{accountinfo.companyname}}</span></p>
+                <p><label>缴费户号</label><span>{{accountinfo.num}}</span></p>
+                <p><label>户名</label><span>*{{accountinfo.uname.substring(1)}}</span></p>
+                <p><label>住址信息</label><span>{{accountinfo.addrdetail}}</span></p>
+                <p><label>当前可用余额</label><span>{{accountinfo.balance}}</span></p>
+                <p><label>当前欠费金额</label><span>{{accountinfo.arrears}}</span></p>
+            </li>
+        </ul>
+
+        <ul class="box">
+            <li class="flex-wrap">
+                <label>充值金额</label>
+                <input class="txt-flex" type="text" placeholder="请输入缴费金额" v-model="rechargeprice">
+            </li>
+        </ul>
+
+        <div class="container-box">
+            <input type="submit" value="立即缴费" class="btn-primary" />
+        </div>
+    </div>
+
+    <script src="js/script.js"></script>
+    <script src="js/common.js"></script>
+    <script src="js/vue.js"></script>
+    <script>
+        var app = new Vue({
+            el: '#app',
+            data: function () {
+                return {
+                    rechargeprice: "",                      //(Number)充值金额
+                    accountinfo: {
+                        type: "t1",                         //(String)缴费类型
+                        name: "电费",                       //(String)缴费类型名称
+                        companyname: "余杭供电局",           //(String)缴费机构
+                        companyid: "c1",                    //(String)缴费机构代码
+                        num: "10014457",                    //(String)缴费户号
+                        uname: "李萍",                      //(String)缴费户名
+                        addrdetail: "余杭仁和某某村落",      //(String)缴费户号所在详细地址
+                        balance: 158.6,                    //(Number)可用余额
+                        arrears: 0                          //(Number)当前欠费
+                    }
+                }
+            },
+            ready: function () {
+                //【读缓存中的绑定信息】
+                var currentAccount = localStorage.getItem('currentAccount');
+                currentAccount = JSON.parse(currentAccount);
+                console.log(currentAccount);
+                // currentAccount.balance = currentAccount.balance.toFixed(2);
+                this.accountinfo = currentAccount;
+            },
+            methods:{
+                funSubRecharge:function(){
+                    //【账户充值】
+                    //传递充值金额及账户信息给后台，提交充值请求 
+                }
+            }
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,96 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="x-ua-compatible" content="ie=edge" />
+    <meta name="viewport" content="width=device-width,initial-scale=1, maximum-scale=1, minimum-scale=1" />
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="format-detection" content="telephone=no">
+    <meta http-equiv="pragma" content="no-cache">
+    <meta http-equiv="cache-control" content="no-cache, must-revalidate">
+    <meta http-equiv="expires" content="0">
+    <link rel="stylesheet" href="css/font.css" />
+    <link rel="stylesheet" href="css/style.css" />
+    <title>选择机构</title>
+</head>
+
+<body id="app" class="greybg">
+    <div class="container">
+        <!-- 搜索 -->
+        <div class="search">
+           <input type="text" class="txt-srh iconfont" v-model="keyword" @input="funFilterKeyWord" placeholder="&#xe62c;搜索"> 
+        </div>
+
+        <!-- 机构列表 -->
+        <ul class="list companylist" v-if="companylist.length">
+            <li v-for="item in companylist">
+                <a class="company-name" href="account-bind.html" :id="item.companyid" @click="funSelectCompany(item)">{{item.companyname}}</a> 
+            </li>
+        </ul>
+
+        <!-- 暂无数据 -->
+        <div v-else class="no-data iconfont">&#xe616; 抱歉，暂无结果</div>
+    </div>
+
+    <script src="js/script.js"></script>
+    <script src="js/common.js"></script>
+    <script src="js/vue.js"></script>
+    <script>
+        var app = new Vue({
+            el: '#app',
+            data: function () {
+                return {
+                    keyword:"",                            //检索关键字
+                    cityid: '',                            //所选地址的城市 id
+                    companylist: [{                        //获取机构列表
+                        companyname: "机构1",
+                        companyid: "company1"
+                    }, {
+                        companyname: "机构2",
+                        companyid: "company2"
+                    }],
+                    orginlist: [{                         //获取机构列表
+                        companyname: "机构1",
+                        companyid: "company1"
+                    }, {
+                        companyname: "机构2",
+                        companyid: "company2"
+                    }]
+                }
+            },
+            ready: function () {
+                //【读url带的参数 cityid】
+                var cityid = getRequest().cityid;
+                console.log(cityid);
+                if (cityid) {
+                    this.cityid = cityid;
+                };
+                //根据cityid 请求后台，获得该cityid 对应的company信息
+                // this.backup = result.data;
+                // this.companylist = result.data;
+            },
+            methods: {
+                funSelectCompany: function (item) {
+                    //【选择机构】
+                    item = JSON.stringify(item);
+                    localStorage.setItem("selectcompany",item);
+                },
+                funFilterKeyWord:function(){
+                    //【机构过滤】
+                    var keyword = this.keyword;
+                    var newarr = [];
+                    for(var i in this.orginlist){
+                        if(this.orginlist[i].companyname.indexOf(keyword) != -1){
+                           newarr.push(this.orginlist[i]); 
+                        }
+                    }
+                    this.companylist = newarr;
+                }
+            }
+        });
+    </script>
+</body>
+
+</html>

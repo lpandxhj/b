@@ -1,0 +1,92 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="x-ua-compatible" content="ie=edge" />
+    <meta name="viewport" content="width=device-width,initial-scale=1, maximum-scale=1, minimum-scale=1" />
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="format-detection" content="telephone=no">
+    <meta http-equiv="pragma" content="no-cache">
+    <meta http-equiv="cache-control" content="no-cache, must-revalidate">
+    <meta http-equiv="expires" content="0">
+    <link rel="stylesheet" href="css/font.css" />
+    <link rel="stylesheet" href="css/style.css" />
+    <title>新增家庭</title>
+</head>
+
+<body id="app" class="greybg">
+    <div class="container">
+        <ul class="box">
+            <li class="select-more select-group">
+                <label>家庭</label>
+                <a href="select-group.html?groupid={{group.groupid}}">{{group.groupname}}</a>
+            </li>
+        </ul>
+
+        <ul class="box">
+            <li class="select-more flex-wrap">
+                <label>所在城市</label>
+                <a class="link-flex" href="select-city.html">{{addr.city}}</a>
+            </li>
+            <li class="flex-wrap">
+                <label>详细地址</label>
+                <input class="txt-flex" type="text" placeholder="家庭地址" v-model="addr.addr" value="">
+            </li>
+        </ul>
+        <div class="container-box">
+            <a v-if="addr.city && addr.addr && group.groupid" href="recharge-other.html" class="btn-primary" @click="funFamilyAdd" />保存</a>
+            <a v-else class="btn-primary btn-disabled">保存</a>
+        </div>
+    </div>
+
+    <script src="js/script.js"></script>
+    <script src="js/common.js"></script>
+    <script src="js/vue.js"></script>
+    <script>
+        var app = new Vue({
+            el: '#app',
+            data: function () {
+                return {
+                    group: {            //所选组别
+                        groupname: "",
+                        groupid: "",
+                        checked: 1
+                    },
+                    addr: { city: "", cityid: "", addr: "" }
+                }
+            },
+            ready: function () {
+                //【读缓存addr】
+                var addr = localStorage.getItem('addr');
+                if (addr && addr != "undefined") {
+                    addr = JSON.parse(addr);
+                    this.addr = addr;
+                }
+
+                //【读url 选中的city】
+                var url = getRequest();
+                if (url.city) {
+                    this.addr.city = decodeURI(decodeURI(url.city));
+                    this.addr.cityid = url.cityid;
+                }
+
+                //【读缓存selectgroup】
+                var selectgroup = localStorage.getItem('selectgroup');
+                if (selectgroup && selectgroup != 'undefined') {
+                    this.group = JSON.parse(selectgroup);
+                }
+            },
+            methods: {
+                funFamilyAdd: function () {
+                    //【新增家庭】
+                    // 请求后台，提交新增家庭信息
+                    localStorage.removeItem('addr');
+                }
+            }
+        });
+    </script>
+</body>
+
+</html>

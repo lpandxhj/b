@@ -1,0 +1,150 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="x-ua-compatible" content="ie=edge" />
+    <meta name="viewport" content="width=device-width,initial-scale=1, maximum-scale=1, minimum-scale=1" />
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="format-detection" content="telephone=no">
+    <meta http-equiv="pragma" content="no-cache">
+    <meta http-equiv="cache-control" content="no-cache, must-revalidate">
+    <meta http-equiv="expires" content="0">
+    <link rel="stylesheet" href="css/font.css" />
+    <link rel="stylesheet" href="css/style.css" />
+    <title>选择分组</title>
+</head>
+
+<body id="app" class="greybg">
+    <div class="container">
+        <ul class="list">
+            <li class="radio-check" v-for="item in grouplist">
+                <!-- 编辑状态：可删除当前分组 -->
+                <template v-if="isedit">
+                    <span class="btn-delgroup" @click="funDelGroup(item.groupid)">删除</span>
+                    <label>{{item.groupname}}</label>
+                </template>
+                <!-- 非编辑状态：点击选中分组并跳转 -->
+                <template v-else>
+                    <input v-if="item.checked" class="orgin" type="radio" name="group" :id="item.groupid" :value="item.groupname" checked="checked">
+                    <input v-else class="orgin" type="radio" name="group" :id="item.groupid" :value="item.groupname">
+                    <label :for="item.groupid" @click="funSelectGroup(item,$index)">{{item.groupname}}</label>
+                </template>
+            </li>
+        </ul>
+        <!-- 新增家庭 -->
+        <div class="create">
+            <label for="create">新增</label>
+            <input class="newfamily" id="create" type="text" @focus="funShowBtn" placeholder="自定义分组名称" v-model="newgroupname">
+            <span class="create-btn" v-show="isfocus">
+                <em class="btn-sure" @click="funCreateSure">确定</em>
+                <em class="btn-cancel" @click="funHideBtn">取消</em>
+            </span>
+        </div>
+
+        <!-- fixed toolerbar -->
+        <div class="fixed-toolerbar">
+            <a v-if="!isedit" href="javascript:;" @click="funChangeEditState" class="btn-admin">编辑分组</a>
+            <a v-else href="javascript:;" @click="funChangeEditState" class="btn-admin">完成</a>
+        </div>
+    </div>
+
+    <script src="js/script.js"></script>
+    <script src="js/common.js"></script>
+    <script src="js/vue.js"></script>
+    <script src="js/vue-resource.js"></script>
+    <script>
+        // Vue.use(resource);
+        var app = new Vue({
+            el: '#app',
+            data: function () {
+                return {
+                    isedit: 0,                            //是否为编辑状态（编辑状态下可删除分组），默认不可编辑
+                    isfocus: 0,                          //新增分组是否聚焦focus
+                    newgroupname: "",                    //新增分组组名
+                    grouplist:[]                         //获取分组,请求后台动态获取
+                }
+            },
+            ready: function () {
+                //【读缓存selectgroup】
+                var selectgroup = localStorage.getItem('selectgroup');
+                if (selectgroup && selectgroup != "undefined") {
+                    selectgroup = JSON.parse(selectgroup);
+                    var groupid = selectgroup.groupid;
+                    for (var x in this.grouplist) {
+                        if (this.grouplist[x].groupid == groupid) {
+                            this.grouplist[x].checked = 1;
+                        } else {
+                            this.grouplist[x].checked = 0;
+                        }
+                    }
+
+                }
+            },
+            created: function () {
+                this.$http
+                    .get('data/getGrouplist.json')
+                    .then((data) => {
+                         this.grouplist = data.data;
+                    })
+            },
+            methods: {
+                funSelectGroup: function (item, idx) {
+                    //【选择分组】
+                    for (var x in this.grouplist) {
+                        if (x == idx) {
+                            this.grouplist[idx].checked = 1;
+                        } else {
+                            this.grouplist[x].checked = 0;
+                        }
+                    }
+                    //提交选中的分组
+                    console.log(item);
+                    item = JSON.stringify(item);
+                    localStorage.setItem('selectgroup', item);  //获取所选的group
+                    // location.href="account-bind.html";
+                    history.back();//返回上页
+                },
+                funShowBtn: function () {
+                    //【显示新增操作按钮】
+                    this.isfocus = 1;
+                },
+                funHideBtn: function () {
+                    //【隐藏新增操作按钮】
+                    this.isfocus = 0;
+                },
+                funCreateSure: function () {
+                    //【新建分组】
+                    //把分组名称提交到后台，返回新的分组,后台自动给新增的分组加个groupid，作为唯一标识
+                    var newgroupname = this.newgroupname;
+                    if (newgroupname) {
+                        var newfamily = {
+                            groupname: newgroupname,
+                            checked: 0
+                        };
+                        this.grouplist.unshift(newfamily);
+                        this.newgroupname = "";
+                        this.isfocus = 0;
+                        this.isedit = 0;
+                    }
+                },
+                funChangeEditState: function () {
+                    //【切换管理状态】
+                    this.isedit = !this.isedit;
+                },
+                funDelGroup: function (groupid) {
+                    //【删除当前分组】
+                    for (var x in this.grouplist) {
+                        if (this.grouplist[x].groupid == groupid) {
+                            this.grouplist.splice(x, 1);
+                            break;
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+
+</html>

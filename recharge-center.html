@@ -1,0 +1,225 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="x-ua-compatible" content="ie=edge" />
+    <meta name="viewport" content="width=device-width,initial-scale=1, maximum-scale=1, minimum-scale=1" />
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="format-detection" content="telephone=no">
+    <meta http-equiv="pragma" content="no-cache">
+    <meta http-equiv="cache-control" content="no-cache, must-revalidate">
+    <meta http-equiv="expires" content="0">
+    <link rel="stylesheet" href="css/font.css" />
+    <link rel="stylesheet" href="css/style.css" />
+    <title>充值中心-话费充值</title>
+</head>
+
+<body id="app">
+    <div class="container clrfix">
+        <!-- 充值手机号 -->
+        <div class="mobile">
+            <input type="number" class="txt-phonenum" v-model="phonenum" placeholder="请输入手机号码" @input="funPhoneInput($event)" @focus="funPhoneFoucs"
+                @blur="funPhoneBlur" />
+            <a v-show="isshowclear" href="javascript:;" class="ic-del iconfont" @click="funClearPhoneNum">&#xe65f;</a>
+            <span v-show="error" class="error">{{error}}</span>
+        </div>
+
+        <!-- 充值选项 -->
+        <div class="item clrfix">
+            <h2 class="title">充话费</h2>
+            <ul v-if="iscanselect" class="selectlist clrfix">
+                <li v-for="item in pricelist" :class="{'active': item.checked}" @click="funSelectPrice($index)">
+                    <p class="faceval">{{item.faceval.toFixed(2)}}元</p>
+                    <p class="pay">售价：{{item.pay.toFixed(2)}}元</p>
+                </li>
+            </ul>
+            <ul v-else class="selectlist clrfix disable">
+                <li v-for="item in pricelist">
+                    <p class="faceval">{{item.faceval.toFixed(2)}}元</p>
+                    <p class="pay">售价：{{item.pay.toFixed(2)}}元</p>
+                </li>
+            </ul>
+        </div>
+
+        <!-- 更多充值 -->
+        <div class="item">
+            <h2 class="title">更多充值</h2>
+            <div class="recharge-type">
+                <a v-for="item in rechargetype" :href="item.url">
+                    <em class="iconfont type-icon" :class="item.clsname"></em>
+                    <p class="type-name">{{item.name}}</p>
+                </a>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="js/script.js"></script>
+    <script src="js/vue.js"></script>
+    <script>
+        var app = new Vue({
+            el: '#app',
+            data: function () {
+                return {
+                    phonenum: "",     //输入的手机号
+                    iscanselect: 0,   //价格是否可选
+                    isshowclear: 0,    //删除是否可见  
+                    error: "",
+                    pricelist: [{
+                        faceval: 10,  //面值
+                        pay: 9.98,    //实际支付
+                        checked: 0    //是否选中，选中后可直接调支付接口
+                    }, {
+                        faceval: 20,
+                        pay: 19.96,
+                        checked: 0
+                    }, {
+                        faceval: 30,
+                        pay: 29.94,
+                        checked: 0
+                    }, {
+                        faceval: 50,
+                        pay: 49.90,
+                        checked: 0
+                    }, {
+                        faceval: 100,
+                        pay: 99.80,
+                        checked: 0
+                    }, {
+                        faceval: 200,
+                        pay: 199.60,
+                        checked: 0
+                    }, {
+                        faceval: 300,
+                        pay: 299.40,
+                        checked: 0
+                    }, {
+                        faceval: 500,
+                        pay: 499.00,
+                        checked: 0
+                    }],
+                    rechargetype: [{
+                        name: "充流量",
+                        icon: "images/ic-50×50-flow.png",
+                        url: "recharge-flow.html",
+                        clsname:"ic-flow",
+                        unicode: "&#xe625;",
+                        remarkicon: ""
+                    }, {
+                        name: "水电煤宽带",
+                        icon: "images/ic-50×50-life.png",
+                        url: "recharge-other.html",
+                        clsname:"ic-life",
+                        unicode: "&#xe600;",
+                        remarkicon: ""
+                    }, {
+                        name: "娱乐充值",
+                        icon: "images/ic-50×50-video.png",
+                        url: "recharge-video.html",
+                        clsname:"ic-video",
+                        unicode: "&#xe601;",
+                        remarkicon: "images/remark-hb.png"
+                    }, {
+                        name: "游戏与其他",
+                        icon: "images/ic-50×50-other.png",
+                        url: "recharge-other.html",
+                        clsname:"ic-other",
+                        unicode: "&#xe602;",
+                        remarkicon: ""
+                    }]
+                }
+
+            },
+            methods: {
+                funPhoneFoucs: function () {
+                    //【获焦】
+                    this.iscanselect = 0;
+                    if (this.phonenum) {
+                        this.isshowclear = 1;
+                        this.error = "";
+                    }
+                },
+                funClearPhoneNum: function () {
+                    //【清除手机号】
+                    this.phonenum = "";
+                    this.isshowclear = 0;
+                    this.iscanselect = 0;
+                    this.error = "";
+                },
+                funPhoneInput: function (e) {
+                    //【键入】
+                    //空
+                    if (!this.phonenum) {
+                        this.isshowclear = 0;
+
+                        //不为空,则验证手机号格式    
+                    } else {
+                        this.isshowclear = 1;
+                        //手机号格式不正确
+                        if (!(/^1(3|4|5|7|8)\d{9}$/.test(this.phonenum))) {
+                            this.iscanselect = 0;
+                            this.isshowclear = 1;
+
+                            //手机号格式正确    
+                        } else {
+                            this.iscanselect = 1;
+                            this.isshowclear = 0;
+                            e.target.blur();      //自动失焦
+                        }
+                    }
+                },
+                funPhoneBlur: function () {
+                    //【失焦】
+                    if (this.phonenum) {
+                        //手机号格式不正确
+                        if (!(/^1(3|4|5|7|8)\d{9}$/.test(this.phonenum))) {
+                            this.iscanselect = 0;
+                            this.error = "(请输入正确的手机号码)"
+                        }else{
+                            this.iscanselect = 1;
+                        }
+                    }
+                },
+                funSelectPrice: function (idx) {
+                    var ts = this;
+                    //【提交充值请求】
+                    var pricelist = this.pricelist;
+                    var faceval = 0;
+                    var pay = 0;
+                    for (var x in pricelist) {
+                        if (x == idx) {
+                            pricelist[x].checked = 1;
+                            faceval = pricelist[x].faceval;
+                            pay = pricelist[x].pay;
+                        } else {
+                            pricelist[x].checked = 0;
+                        }
+                    }
+                    console.log("手机号码为：" + ts.phonenum + "; 充值的的话费面值为：" + faceval + "元; 实付金额为：" + pay + "元");
+
+                    //post(url,[data],[options])
+                    ts.$http.post(
+                        'http://example.com/book/create',
+                        {
+                            phonenum: ts.phonenum,
+                            faceval: faceval,
+                            pay: pay
+                        },
+                        {
+                            'headers': { 'Content-Type': 'x-www-form-urlencoded' }
+                        }).then(function (response) {
+                            //成功回调
+                            console.log(response.data)
+                        }, function (response) {
+                            //失败回调
+                        })
+
+                }
+            }
+        });
+    </script>
+</body>
+
+</html>

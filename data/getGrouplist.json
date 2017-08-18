@@ -1,0 +1,12 @@
+[
+    {
+        "groupname": "我家",
+        "groupid": "g1",
+        "checked": 0
+    },
+    {
+        "groupname": "租客",
+        "groupid": "g2",
+        "checked": 0
+    }
+]

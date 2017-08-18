@@ -1,0 +1,230 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="x-ua-compatible" content="ie=edge" />
+    <meta name="viewport" content="width=device-width,initial-scale=1, maximum-scale=1, minimum-scale=1" />
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="format-detection" content="telephone=no">
+    <meta http-equiv="pragma" content="no-cache">
+    <meta http-equiv="cache-control" content="no-cache, must-revalidate">
+    <meta http-equiv="expires" content="0">
+    <link rel="stylesheet" href="css/font.css" />
+    <link rel="stylesheet" href="css/style.css" />
+    <title>生活缴费-水煤电宽带电视</title>
+</head>
+
+<body id="app" class="greybg">
+    <div class="container clrfix">
+        <!-- tab -->
+        <div class="tab">
+            <a href="family-add.html" class="btn-familyadd"><em class="iconfont ic-set">&#xe613;</em>新增家庭</a>
+            <ul class="group-tab clrfix">
+                <li v-for="item in group" :class="{checked: $index==checkedidx}" @click="funTab($index)">{{item.groupname}}</li>
+            </ul>
+        </div>
+
+        <!-- 缴费账户地址 -->
+        <a class="group clrfix" href="javascript:;" @click="funPassAddrByStorage">
+            <em class="ic-home"></em>
+            <div class="addr select-more">
+                <p class="addr-city">{{group[checkedidx].addr ? group[checkedidx].addr.city :'请补全地址'}}</p>
+                <p class="addr-details">{{group[checkedidx].addr ? group[checkedidx].addr.addr : '详细地址'}}</p>
+            </div>
+        </a>
+
+        <!-- 缴费账户类型 -->
+        <div class="accounttype">
+            <h2><a href="javascript:;" v-if="countbind" @click="funIsEdit" class="btn-edit">{{group[checkedidx].isedit ? '取消编辑':'编辑'}}</a>缴费账户</h2>
+            <ul class="typelist">
+                <li v-for="item in group[checkedidx].typelist" :class="item.type">
+                    <a v-if="item.account" class="binded" href="recharge.html" @click="funPassBindInfoByStorage(item)">
+                        <!-- 已绑定账户的 -->
+                        <em class="ic-more" v-show="!group[checkedidx].isedit">more</em>
+
+                        <div v-show="group[checkedidx].isedit" class="account-edit">
+                            <span class="btn-account-edit" @click.stop.prevent="funGoAccountBind(item)">修改</span>
+                            <span class="btn-account-del" @click.stop.prevent="funDelAccountBind($index)">删除</span>
+                        </div>
+
+                        <span class="typelist-name">{{item.name}}</span>
+                        <p class="account-info">{{item.account.num}} | *{{item.account.uname.substring(1)}}</p>
+                    </a>
+
+                    <a v-else href="javascript:;" @click="funGoAccountBind(item)" class="typelist-name no-bind">
+                        <!-- 尚未绑定的 -->
+                        <em class="ic-more">more</em> {{item.name}}
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <script src="js/script.js"></script>
+    <script src="js/vue.js"></script>
+    <script>
+        var app = new Vue({
+            el: '#app',
+            data: function () {
+                return {
+                    checkedidx: 0,      //当前选中的分组索引
+                    countbind: 1,       //当前分组绑定的账户类型数量
+                    group: [{
+                        groupname: "我家",
+                        groupid: "g1",
+                        addr: { city: "杭州", "cityid": "c11", addr: "余杭仁和" },
+                        isedit: 0,          //当前状态是否为编辑状态
+                        typelist: [{
+                            name: "水费",    //缴费类型 t1:水费 t2：电费 t3:有线电视 t4：燃气 t5：固话 t6：宽带 t7：物业
+                            account: "",    //已绑定的显示户号信息，无绑定的为空“”
+                            type: 't1'      //缴费类型 t1:水费 t2：电费 t3:有线电视 t4：燃气 t5：固话 t6：宽带 t7：物业
+                        }, {
+                            name: "电费",
+                            account: {
+                                companyname: "余杭供电局",           //缴费机构
+                                companyid: "c1",                    //缴费机构代码
+                                num: "1028888",                     //缴费户号
+                                uname: "李萍",                      //缴费户名
+                                addrdetail: "余杭仁和某某村落",      //缴费户号所在详细地址
+                                balance: "158.06",                  //可用余额
+                                arrears: 0                          //当前欠费
+                            },
+                            type: 't2'
+                        }, {
+                            name: "有线电视",
+                            account: "",
+                            type: 't3'
+                        }, {
+                            name: "燃气费",
+                            account: "",
+                            type: 't4'
+                        }, {
+                            name: "固话",
+                            account: "",
+                            type: 't5'
+                        }, {
+                            name: "宽带",
+                            account: "",
+                            type: 't6'
+                        }, {
+                            name: "物业费",
+                            account: "",
+                            type: 't7'
+                        }]
+                    }, {
+                        groupname: "租客",
+                        groupid: "g2",
+                        addr: "",
+                        isedit: 0,
+                        typelist: [{
+                            name: "水费",
+                            account: "",
+                            type: 't1'
+                        }, {
+                            name: "电费",
+                            account: "",
+                            type: 't2'
+                        }, {
+                            name: "有线电视",
+                            account: "",
+                            type: 't3'
+                        }, {
+                            name: "燃气费",
+                            account: "",
+                            type: 't4'
+                        }, {
+                            name: "固话",
+                            account: "",
+                            type: 't5'
+                        }, {
+                            name: "宽带",
+                            account: "",
+                            type: 't6'
+                        }, {
+                            name: "物业费",
+                            account: "",
+                            type: 't7'
+                        }]
+                    }]
+                }
+            },
+            methods: {
+                funIsEdit: function () {
+                    //【切换当前编辑状态】
+                    var checkedidx = this.checkedidx;
+                    var flag = this.group[checkedidx].isedit;
+                    this.group[checkedidx].isedit = !flag;
+                },
+                funDelAccountBind: function (idx) {
+                    //【解除账户绑定】
+                    var checkedidx = this.checkedidx;
+                    this.group[checkedidx].typelist[idx].account = "";
+                    this.countbind--;
+                },
+                funPassBindInfoByStorage: function (item) {
+                    //【把账户绑定信息存缓存，便于缴费页获取】
+                    var currentAccount = item.account;
+                    currentAccount.type = item.type;
+                    currentAccount.name = item.name;
+                    currentAccount = JSON.stringify(currentAccount);
+                    localStorage.setItem('currentAccount', currentAccount);
+                },
+                funGoAccountBind: function (item) {
+                    //【绑定户号】
+                    var idx = this.checkedidx;
+                    var selectgroup = {
+                        groupname: this.group[idx].groupname,
+                        groupid: this.group[idx].groupid,
+                        checked: 1
+                    };
+                    localStorage.setItem('selectgroup', JSON.stringify(selectgroup));
+                    localStorage.setItem('accountinfo', JSON.stringify(item));
+                    localStorage.setItem('addr', JSON.stringify(this.addr));
+
+                    location.href = "account-bind.html";
+                },
+                funPassAddrByStorage: function () {
+                    var ts = this;
+                    //【存缓存addr，便于地址页获取】
+                    //还未添加地址的，跳转到地址页，已添加了地址的，跳转到家庭管理页
+                    var idx = this.checkedidx;
+                    var addr = this.group[idx].addr;
+                    if (addr) {
+                        addr = JSON.stringify(addr);
+                        localStorage.setItem('addr', addr);
+                        var selectgroup = {
+                            groupname: ts.group[idx].groupname,
+                            groupid: ts.group[idx].groupid
+                        };
+                        selectgroup = JSON.stringify(selectgroup);//存已选分组
+                        localStorage.setItem('selectgroup', selectgroup);
+                        location.href = "family-info.html";   //查看当前家庭信息
+                    } else {
+                        location.href = "addr-edit.html";     //补充地址 
+                    }
+                },
+                funTab: function (idx) {
+                    //【tab】
+                    this.checkedidx = idx;
+                    //计算countbind
+                    var countbind = 0;
+                    var currenttypelist = this.group[idx].typelist;
+                    for (var i in currenttypelist) {
+                        if (currenttypelist[i].account) {
+                            countbind++;
+                        }
+                    }
+                    this.countbind = countbind;
+                    localStorage.removeItem('addr');
+                },
+                funtest:function(){
+                    console.log('test');
+                }
+            }
+        });
+    </script>
+</body>
+
+</html>

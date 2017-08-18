@@ -1,0 +1,84 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="x-ua-compatible" content="ie=edge" />
+    <meta name="viewport" content="width=device-width,initial-scale=1, maximum-scale=1, minimum-scale=1" />
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="format-detection" content="telephone=no">
+    <meta http-equiv="pragma" content="no-cache">
+    <meta http-equiv="cache-control" content="no-cache, must-revalidate">
+    <meta http-equiv="expires" content="0">
+    <link rel="stylesheet" href="css/font.css" />
+    <link rel="stylesheet" href="css/style.css" />
+    <title>家庭</title>
+</head>
+
+<body id="app" class="greybg">
+    <div class="container">
+        <p class="clrfix"><a href="family-add.html" class="btn-familyadd"><em class="iconfont ic-set">&#xe613;</em>新增家庭</a></p>
+
+        <ul class="box">
+            <li class="select-more flex-wrap">
+                <label>地址</label>
+                <a class="link-flex" href="select-city.html">{{addr.city}}</a>
+            </li>
+            <li class="select-more flex-wrap">
+                <label>家庭</label>
+                <a class="link-flex" href="select-group.html">{{groupname}}</a>
+            </li>
+        </ul>
+        <div class="container-box">
+            <a href="javascript:;" class="btn-primary btn-danger" @click="funDelFamily" />删除</a>
+        </div>
+    </div>
+
+    <script src="js/script.js"></script>
+    <script src="js/common.js"></script>
+    <script src="js/vue.js"></script>
+    <script>
+        var app = new Vue({
+            el: '#app',
+            data: function () {
+                return {
+                    addr: { city: "", cityid: "", addr: "" },
+                    groupname:""
+                }
+            },
+            ready: function () {
+                //【读缓存addr】
+                var addr = localStorage.getItem('addr');
+                if (addr && addr != "undefined") {
+                    addr = JSON.parse(addr);
+                    this.addr = addr;
+                }
+
+                 //【读缓存selectgroup】
+                var selectgroup = localStorage.getItem('selectgroup');
+                if (selectgroup && selectgroup != "undefined") {
+                    selectgroup = JSON.parse(selectgroup);
+                    this.groupname = selectgroup.groupname;
+                }
+
+                // //【读缓存selectcity】
+                var url = getRequest();
+                var selectcity = localStorage.getItem('selectcity');
+                if (selectcity && selectcity != "undefined") {
+                    this.addr.city = selectcity.city;
+                    this.addr.cityid = selectcity.cityid;
+                }
+            },
+            methods: {
+                funDelFamily: function () {
+                    //【删除当前家庭】
+                    // 请求后台,成功后返回上页
+                     history.back();//返回上页
+                }
+            }
+        });
+    </script>
+</body>
+
+</html>

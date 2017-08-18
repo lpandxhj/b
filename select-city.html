@@ -1,0 +1,309 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="x-ua-compatible" content="ie=edge" />
+    <meta name="viewport" content="width=device-width,initial-scale=1, maximum-scale=1, minimum-scale=1" />
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="format-detection" content="telephone=no">
+    <meta http-equiv="pragma" content="no-cache">
+    <meta http-equiv="cache-control" content="no-cache, must-revalidate">
+    <meta http-equiv="expires" content="0">
+    <link rel="stylesheet" href="css/font.css" />
+    <link rel="stylesheet" href="css/style.css" />
+    <title>选择城市</title>
+</head>
+
+<body id="app" class="greybg">
+    <div class="container">
+        <!-- maskbg -->
+        <p v-show="showmask" class="maskbg-fullpage">全屏遮罩</p>
+
+        <!-- 搜索 -->
+        <div class="search">
+            <input v-if="!stateissrh" type="text" class="txt-srh iconfont" @focus="funAddMask" placeholder="&#xe62c;输入城市名、拼音或首字母查询">
+            <div v-else class="srh">
+                <a href="javascript:;" class="btn-cancel" @click="funCancelSrh">取消</a>
+                <div class="srh-box">
+                    <input type="text" class="txt-srh" v-model="keyword" @focus="funAddMask" @input="funSrh(1)" placeholder="输入城市名、拼音或首字母查询">
+                    <em class="iconfont ic-del" @click="funSrh(0)">&#xe65f;</em>
+                </div>
+            </div>
+        </div>
+
+        <!-- 城市列表 -->
+        <div class="city">
+            <!-- 检索状态 -->
+            <div v-if="stateissrh" class="state-srh">
+                <ul v-if="srhresult.length" class="srh-result">
+                    <li v-for="item in srhresult">
+                        <a @click.stop="funSelectCity(item)" href="javascript:;">{{item.city}}</a>
+                    </li>
+                </ul>
+
+                <!-- 暂无数据 -->
+                <div v-else class="no-data iconfont">&#xe616; 抱歉，暂无结果</div>
+            </div>
+
+
+            <!-- 非检索状态 -->
+            <div v-else>
+                <!-- 你所在的地区 -->
+                <div class="box-city u-city clrfix">
+                    <h2>你所在的地区</h2>
+                    <a class="city-item" name="ucity" id="ucity" @click.stop="funSelectCity(cityinfo.ucity)" href="javascript:;">{{cityinfo.ucity.city}}</a>
+                </div>
+
+                <!-- 热门城市 -->
+                <div class="box-city hot-city clrfix">
+                    <h2>热门城市</h2>
+                    <ul>
+                        <li v-for="item in cityinfo.hotcity"><a class="city-item" @click.stop="funSelectCity(item)" href="javascript:;">{{item.city}}</a></li>
+                    </ul>
+                </div>
+
+                <!-- 所有城市：按26个拼音字母排序 -->
+                <div class="box-city all-city clrfix">
+                    <div v-for="item in citygroup">
+                        <h3 :name="item.pym" :id="item.pym">{{item.pym}}</h2>
+                            <ul class="list">
+                                <li v-for="city in item.list"><a @click.stop="funSelectCity(city)" href="javascript:;">{{city.city}}</a></li>
+                            </ul>
+                        
+                            <!-- fixed pym guide -->
+                            <div class="fixed-pymbar">
+                                <a href="#">当前</a>
+                                <a href="#ucity">热门</a>
+                                <a href="#{{item.pym}}" v-for="item in citygroup">{{item.pym}}</a>
+                            </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <script src="js/script.js"></script>
+            <script src="js/common.js"></script>
+            <script src="js/vue.js"></script>
+            <script>
+                var app = new Vue({
+                    el: '#app',
+                    data: function () {
+                        return {
+                            stateissrh: 0,  //当前状态是否为检索
+                            showmask: 0,    //显示遮罩
+                            keyword: "",    //检索关键字
+                            isshowclear:0,  //关键字删除按钮是否显示
+                            cityinfo: {     //城市相关信息（请求后台返回的原始数据）
+                                ucity: { pym: "H", city: "杭州市", cityid: "12" },
+                                hotcity: [{
+                                    pym: "H",
+                                    city: "杭州市",
+                                    cityid: "12"
+                                }, {
+                                    pym: "S",
+                                    city: "上海",
+                                    cityid: "13"
+                                }, {
+                                    pym: "A",
+                                    city: "鞍山",
+                                    cityid: "22"
+                                }, {
+                                    pym: "A",
+                                    city: "安庆",
+                                    cityid: "23"
+                                }],
+                                allcity: [{
+                                    pym: "A",
+                                    city: "鞍山",
+                                    cityid: "22"
+                                }, {
+                                    pym: "A",
+                                    city: "安庆",
+                                    cityid: "23"
+                                }, {
+                                    pym: "A",
+                                    city: "安阳",
+                                    cityid: "26"
+                                }, {
+                                    pym: "A",
+                                    city: "阿坝",
+                                    cityid: "27"
+                                }, {
+                                    pym: "B",
+                                    city: "北京",
+                                    cityid: "45"
+                                }, {
+                                    pym: "B",
+                                    city: "保定",
+                                    cityid: "47"
+                                }, {
+                                    pym: "B",
+                                    city: "北京",
+                                    cityid: "45"
+                                }, {
+                                    pym: "B",
+                                    city: "保定",
+                                    cityid: "47"
+                                }, {
+                                    pym: "B",
+                                    city: "北京",
+                                    cityid: "45"
+                                }, {
+                                    pym: "B",
+                                    city: "保定",
+                                    cityid: "47"
+                                }, {
+                                    pym: "B",
+                                    city: "北京",
+                                    cityid: "45"
+                                }, {
+                                    pym: "B",
+                                    city: "保定",
+                                    cityid: "47"
+                                }, {
+                                    pym: "B",
+                                    city: "北京",
+                                    cityid: "45"
+                                }, {
+                                    pym: "B",
+                                    city: "保定",
+                                    cityid: "47"
+                                }]
+                            },
+                            citygroup: [    //根据后台返回的城市数据，前端通过拼音再次分组后的数据
+                                {
+                                    pym: "A",
+                                    list: [{
+                                        pym: "A",
+                                        city: "鞍山",
+                                        cityid: "22"
+                                    }, {
+                                        pym: "A",
+                                        city: "安庆",
+                                        cityid: "23"
+                                    }, {
+                                        pym: "A",
+                                        city: "安阳",
+                                        cityid: "26"
+                                    }, {
+                                        pym: "A",
+                                        city: "阿坝",
+                                        cityid: "27"
+                                    }]
+                                }, {
+                                    pym: "B",
+                                    list: [{
+                                        pym: "B",
+                                        city: "北京",
+                                        cityid: "45"
+                                    }, {
+                                        pym: "B",
+                                        city: "保定",
+                                        cityid: "47"
+                                    }, {
+                                        pym: "B",
+                                        city: "北京",
+                                        cityid: "45"
+                                    }, {
+                                        pym: "B",
+                                        city: "保定",
+                                        cityid: "47"
+                                    }, {
+                                        pym: "B",
+                                        city: "北京",
+                                        cityid: "45"
+                                    }, {
+                                        pym: "B",
+                                        city: "保定",
+                                        cityid: "47"
+                                    }, {
+                                        pym: "B",
+                                        city: "北京",
+                                        cityid: "45"
+                                    }, {
+                                        pym: "B",
+                                        city: "保定",
+                                        cityid: "47"
+                                    }, {
+                                        pym: "B",
+                                        city: "北京",
+                                        cityid: "45"
+                                    }, {
+                                        pym: "B",
+                                        city: "保定",
+                                        cityid: "47"
+                                    }]
+                                }
+                            ],
+                            srhresult: []   //通过关键字检索后 匹配原始数据 得到匹配的城市 
+                        }
+                    },
+                    ready: function () {
+                        //【获取城市信息】
+
+                        //请求后台，获得城市信息
+                        // this.backup = result.data;
+                        // this.cityinfo = result.data;
+                    },
+                    methods: {
+                        funSrh: function (keyword) {
+                            //【模糊查询】
+                            keyword = keyword ? this.keyword.toUpperCase() : "";
+                            this.stateissrh = 1;
+                            //关键字不为空，开启检索
+                            if (keyword) {
+                                var allcity = this.cityinfo.allcity;
+                                var srhresult = [];
+                                for (var i in allcity) {
+                                    if (allcity[i].city.indexOf(keyword) != -1 || allcity[i].pym.indexOf(keyword) != -1) {
+                                        srhresult.push(allcity[i]);
+                                    }
+                                }
+                                this.isshowclear = 1;
+                                this.srhresult = srhresult;
+                                if (srhresult.length) {
+                                    this.showmask = 0;
+                                } else {
+                                    this.showmask = 1;
+                                }
+
+                                //关键字为空，关闭检索
+                            } else {
+                                this.isshowclear = 0;
+                                this.srhresult = "";
+                                this.showmask = 1;
+                                this.keyword = "";
+                            }
+
+                        },
+                        funCancelSrh: function () {
+                            //【取消模糊查询】
+                            this.stateissrh = 0;
+                            this.srhresult = "";
+                            this.showmask = 0;
+                            this.keyword = "";
+                        },
+                        funAddMask: function () {
+                            //【显示遮罩】
+                            this.showmask = 1;
+                            this.stateissrh = 1;
+                        },
+                        funSelectCity: function (item) {
+                            //【选中的城市参数存url并跳转】
+                            history.back();//返回上页
+                            var addr = {
+                                city:item.city,
+                                cityid:item.cityid,
+                                addr:""
+                            };
+                            addr = JSON.stringify(addr);
+                            localStorage.setItem('addr',addr);  //存已选城市
+                        }
+                    }
+                });
+            </script>
+</body>
+
+</html>
